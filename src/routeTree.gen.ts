@@ -9,38 +9,143 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoPrincipalRouteImport } from './routes/demo.principal'
+import { Route as DemoMissionRouteImport } from './routes/demo.mission'
+import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
+import { Route as AuthenticatedMissionControlRouteImport } from './routes/_authenticated/mission-control'
+import { Route as DemoLessonMission001SaveTheIssRouteImport } from './routes/demo.lesson.mission-001-save-the-iss'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoPrincipalRoute = DemoPrincipalRouteImport.update({
+  id: '/demo/principal',
+  path: '/demo/principal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoMissionRoute = DemoMissionRouteImport.update({
+  id: '/demo/mission',
+  path: '/demo/mission',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoClassroomRoute = DemoClassroomRouteImport.update({
+  id: '/demo/classroom',
+  path: '/demo/classroom',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMissionControlRoute =
+  AuthenticatedMissionControlRouteImport.update({
+    id: '/mission-control',
+    path: '/mission-control',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const DemoLessonMission001SaveTheIssRoute =
+  DemoLessonMission001SaveTheIssRouteImport.update({
+    id: '/demo/lesson/mission-001-save-the-iss',
+    path: '/demo/lesson/mission-001-save-the-iss',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mission-control': typeof AuthenticatedMissionControlRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
+  '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mission-control': typeof AuthenticatedMissionControlRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
+  '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/mission-control': typeof AuthenticatedMissionControlRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
+  '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/mission-control'
+    | '/demo/classroom'
+    | '/demo/mission'
+    | '/demo/principal'
+    | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/mission-control'
+    | '/demo/classroom'
+    | '/demo/mission'
+    | '/demo/principal'
+    | '/demo/lesson/mission-001-save-the-iss'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/mission-control'
+    | '/demo/classroom'
+    | '/demo/mission'
+    | '/demo/principal'
+    | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  DemoClassroomRoute: typeof DemoClassroomRoute
+  DemoMissionRoute: typeof DemoMissionRoute
+  DemoPrincipalRoute: typeof DemoPrincipalRoute
+  DemoLessonMission001SaveTheIssRoute: typeof DemoLessonMission001SaveTheIssRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +153,64 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/principal': {
+      id: '/demo/principal'
+      path: '/demo/principal'
+      fullPath: '/demo/principal'
+      preLoaderRoute: typeof DemoPrincipalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/mission': {
+      id: '/demo/mission'
+      path: '/demo/mission'
+      fullPath: '/demo/mission'
+      preLoaderRoute: typeof DemoMissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/classroom': {
+      id: '/demo/classroom'
+      path: '/demo/classroom'
+      fullPath: '/demo/classroom'
+      preLoaderRoute: typeof DemoClassroomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/mission-control': {
+      id: '/_authenticated/mission-control'
+      path: '/mission-control'
+      fullPath: '/mission-control'
+      preLoaderRoute: typeof AuthenticatedMissionControlRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/demo/lesson/mission-001-save-the-iss': {
+      id: '/demo/lesson/mission-001-save-the-iss'
+      path: '/demo/lesson/mission-001-save-the-iss'
+      fullPath: '/demo/lesson/mission-001-save-the-iss'
+      preLoaderRoute: typeof DemoLessonMission001SaveTheIssRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMissionControlRoute: typeof AuthenticatedMissionControlRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMissionControlRoute: AuthenticatedMissionControlRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  DemoClassroomRoute: DemoClassroomRoute,
+  DemoMissionRoute: DemoMissionRoute,
+  DemoPrincipalRoute: DemoPrincipalRoute,
+  DemoLessonMission001SaveTheIssRoute: DemoLessonMission001SaveTheIssRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -9,38 +9,96 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoPrincipalRouteImport } from './routes/demo.principal'
+import { Route as DemoMissionRouteImport } from './routes/demo.mission'
+import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DemoPrincipalRoute = DemoPrincipalRouteImport.update({
+  id: '/demo/principal',
+  path: '/demo/principal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoMissionRoute = DemoMissionRouteImport.update({
+  id: '/demo/mission',
+  path: '/demo/mission',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoClassroomRoute = DemoClassroomRouteImport.update({
+  id: '/demo/classroom',
+  path: '/demo/classroom',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/demo/classroom': typeof DemoClassroomRoute
+  '/demo/mission': typeof DemoMissionRoute
+  '/demo/principal': typeof DemoPrincipalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/demo/classroom'
+    | '/demo/mission'
+    | '/demo/principal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/demo/classroom' | '/demo/mission' | '/demo/principal'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/demo/classroom'
+    | '/demo/mission'
+    | '/demo/principal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  DemoClassroomRoute: typeof DemoClassroomRoute
+  DemoMissionRoute: typeof DemoMissionRoute
+  DemoPrincipalRoute: typeof DemoPrincipalRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +106,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/demo/principal': {
+      id: '/demo/principal'
+      path: '/demo/principal'
+      fullPath: '/demo/principal'
+      preLoaderRoute: typeof DemoPrincipalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/mission': {
+      id: '/demo/mission'
+      path: '/demo/mission'
+      fullPath: '/demo/mission'
+      preLoaderRoute: typeof DemoMissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/classroom': {
+      id: '/demo/classroom'
+      path: '/demo/classroom'
+      fullPath: '/demo/classroom'
+      preLoaderRoute: typeof DemoClassroomRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  DemoClassroomRoute: DemoClassroomRoute,
+  DemoMissionRoute: DemoMissionRoute,
+  DemoPrincipalRoute: DemoPrincipalRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

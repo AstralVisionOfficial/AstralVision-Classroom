@@ -1,13 +1,18 @@
 import { defineConfig } from 'vite';
-import solidPlugin from 'vite-plugin-solid';
+import tsConfigPaths from 'vite-tsconfig-paths';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [solidPlugin()],
-  base: '/AstralVision-Classroom/',
-  server: {
-    port: 3000,
-  },
-  build: {
-    target: 'esnext',
-  },
+  server: { port: 8080, host: '::' },
+  plugins: [
+    tsConfigPaths({ projects: ['./tsconfig.json'] }),
+    tailwindcss(),
+    tanstackStart({
+      customViteReactPlugin: true,
+      target: 'cloudflare-module',
+    }),
+    viteReact(),
+  ],
 });

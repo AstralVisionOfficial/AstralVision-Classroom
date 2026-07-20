@@ -179,9 +179,9 @@
 @utility alert-glow { box-shadow: var(--shadow-alert); }
 @utility text-cyan { color: var(--primary); }
 @utility text-orange { color: var(--accent); }
-@utility bg-hero { background: var(--gradient-hero); }
-@utility bg-cyan-grad { background: var(--gradient-cyan); }
-@utility bg-alert-grad { background: var(--gradient-alert); }
+@utility bg-hero { background-image: var(--gradient-hero); }
+@utility bg-cyan-grad { background-image: var(--gradient-cyan); }
+@utility bg-alert-grad { background-image: var(--gradient-alert); }
 
 /* Telemetry-styled number */
 @utility telemetry {

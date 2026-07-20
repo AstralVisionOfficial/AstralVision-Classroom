@@ -10,7 +10,6 @@ export default defineConfig({
     tsConfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart({
-      customViteReactPlugin: true,
       target: 'cloudflare-module',
     }),
     viteReact(),

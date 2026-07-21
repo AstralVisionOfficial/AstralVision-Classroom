@@ -106,15 +106,16 @@ function LessonPage() {
           />
         )}
         {stage === "alert" && <AlertStage onContinue={() => setStage("briefing")} />}
-        {stage === "briefing" && <BriefingStage onContinue={() => setStage("learn-orbit")} />}
+        {stage === "briefing" && <BriefingStage tier={tier} onContinue={() => setStage("learn-orbit")} />}
         {stage === "learn-orbit" && (
-          <LearnOrbitStage onBack={() => setStage("briefing")} onNext={() => setStage("learn-debris")} />
+          <LearnOrbitStage tier={tier} onBack={() => setStage("briefing")} onNext={() => setStage("learn-debris")} />
         )}
         {stage === "learn-debris" && (
-          <LearnDebrisStage onBack={() => setStage("learn-orbit")} onNext={() => setStage("analyse")} />
+          <LearnDebrisStage tier={tier} onBack={() => setStage("learn-orbit")} onNext={() => setStage("analyse")} />
         )}
         {stage === "analyse" && (
           <AnalyseStage
+            tier={tier}
             deltaV={deltaV} setDeltaV={setDeltaV}
             direction={direction} setDirection={setDirection}
             minutesBefore={minutesBefore} setMinutesBefore={setMinutesBefore}

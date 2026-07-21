@@ -362,27 +362,25 @@ function LearnOrbitStage({ tier, onBack, onNext }: { tier: MissionTier; onBack: 
   );
 }
 
-function LearnDebrisStage({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+function LearnDebrisStage({ tier, onBack, onNext }: { tier: MissionTier; onBack: () => void; onNext: () => void }) {
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Learn · Stage 2" title="Gravity, Debris & the Kessler problem" />
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <GlassPanel className="p-6">
-          <p className="text-sm sm:text-base leading-relaxed">
-            Space is not empty. There are over <span className="text-cyan font-semibold">36,500 tracked objects</span>
-            larger than 10 cm orbiting Earth — plus an estimated <span className="text-cyan font-semibold">1 million</span> between 1 and 10 cm.
-            Each moves at roughly 7-8 km/s.
-          </p>
+          <p className="text-sm sm:text-base leading-relaxed">{copy.learnDebrisLead}</p>
           <p className="mt-3 text-sm text-muted-foreground">
-            A 1 cm fragment carries the kinetic energy of a hand grenade at those speeds. That's why even
-            small debris on a projected path is treated as a critical threat.
+            {tier === "foundation"
+              ? "Even a tiny piece can smash a satellite because it is moving so fast. That is why we track the sky and move things out of the way."
+              : tier === "advanced"
+              ? "Hypervelocity impact at ~14 km/s deposits kinetic energy comparable to explosives per gram. Debris avoidance is a routine part of station keeping."
+              : "A 1 cm fragment carries the kinetic energy of a hand grenade at those speeds. That's why even small debris on a projected path is treated as a critical threat."}
           </p>
         </GlassPanel>
         <GlassPanel className="p-6">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Key idea</div>
-          <div className="mt-2 font-display text-xl font-semibold">
-            Small velocity changes → large positional changes.
-          </div>
+          <div className="mt-2 font-display text-xl font-semibold">{copy.learnDebrisKey}</div>
           <p className="mt-3 text-sm text-muted-foreground">
             A tiny burn of just a few m/s applied 20 minutes before conjunction can shift the ISS by
             kilometres by the time debris arrives. That's the manoeuvre you'll design next.
@@ -395,13 +393,15 @@ function LearnDebrisStage({ onBack, onNext }: { onBack: () => void; onNext: () =
 }
 
 function AnalyseStage(props: {
+  tier: MissionTier;
   deltaV: number; setDeltaV: (n: number) => void;
   direction: "prograde" | "retrograde" | "radial"; setDirection: (d: "prograde" | "retrograde" | "radial") => void;
   minutesBefore: number; setMinutesBefore: (n: number) => void;
   missKm: number; success: boolean; committed: boolean;
   onCommit: () => void; onBack: () => void; onNext: () => void;
 }) {
-  const { deltaV, setDeltaV, direction, setDirection, minutesBefore, setMinutesBefore, missKm, success, committed, onCommit, onBack, onNext } = props;
+  const { tier, deltaV, setDeltaV, direction, setDirection, minutesBefore, setMinutesBefore, missKm, success, committed, onCommit, onBack, onNext } = props;
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Analyse" title="Recommend the manoeuvre" />

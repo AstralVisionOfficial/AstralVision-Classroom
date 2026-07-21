@@ -747,48 +747,77 @@ function FormulaCard({ term, definition, formula, variables, example }: {
   );
 }
 
-function PracticeQuestions({ deltaV, minutesBefore, direction }: {
-  deltaV: number; minutesBefore: number; direction: "prograde" | "retrograde" | "radial";
+function PracticeQuestions({ tier, deltaV, minutesBefore, direction }: {
+  tier: MissionTier; deltaV: number; minutesBefore: number; direction: "prograde" | "retrograde" | "radial";
 }) {
-  // Q1: computed from current sliders — students must compute along-track shift in km.
-  const k = direction === "radial" ? 0.35 : 1;
-  const q1Answer = (deltaV * minutesBefore * 60 * k) / 1000; // km
-  // Q2: fixed scenario — Δv=0.8 m/s prograde, 15 min before → 0.72 km
-  const q2Answer = (0.8 * 15 * 60 * 1) / 1000;
-  // Q3: fixed altitude question — period at 500 km
-  const q3Answer = orbitalPeriodMinutes(500);
-
+  const copy = TIER_COPY[tier];
+  const questions = copy.questions({ deltaV, minutesBefore, direction });
   return (
     <GlassPanel className="p-6">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Check your maths</div>
-      <div className="mt-1 font-display text-lg font-semibold">Use the formulas to justify your recommendation</div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Work these out on paper first, then type your answer. Round to 2 decimal places.
-      </p>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">{copy.practiceHeading}</div>
+      <div className="mt-1 font-display text-lg font-semibold">
+        {tier === "foundation" ? "Quick check — pick the best answer" : "Use the formulas to justify your recommendation"}
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">{copy.practiceLead}</p>
       <div className="mt-4 space-y-3">
-        <Question
-          n={1}
-          prompt={`Using your current settings (Δv = ${deltaV.toFixed(2)} m/s, t = ${minutesBefore} min, direction = ${direction}), what is the along-track shift Δs in kilometres? Formula: Δs = Δv × t × k ÷ 1000.`}
-          answer={q1Answer}
-          unit="km"
-          tolerance={0.05}
-        />
-        <Question
-          n={2}
-          prompt="A prograde burn of Δv = 0.8 m/s is applied 15 minutes before conjunction. What along-track shift does this produce (in km)?"
-          answer={q2Answer}
-          unit="km"
-          tolerance={0.05}
-        />
-        <Question
-          n={3}
-          prompt="Using T = 2π√(a³/GM) with G = 6.674×10⁻¹¹, M = 5.972×10²⁴ kg, and Earth's radius 6,371 km, what is the orbital period (in minutes) at an altitude of 500 km?"
-          answer={q3Answer}
-          unit="min"
-          tolerance={0.5}
-        />
+        {questions.map((q, i) => (
+          q.kind === "numeric" ? (
+            <Question key={i} n={i + 1} prompt={q.prompt} answer={q.answer} unit={q.unit} tolerance={q.tolerance} />
+          ) : (
+            <MultipleChoiceQuestion key={i} n={i + 1} prompt={q.prompt} options={q.options} correctIndex={q.correctIndex} />
+          )
+        ))}
       </div>
     </GlassPanel>
+  );
+}
+
+function MultipleChoiceQuestion({ n, prompt, options, correctIndex }: {
+  n: number; prompt: string; options: string[]; correctIndex: number;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="rounded-md border border-border bg-surface p-4">
+      <div className="flex gap-3">
+        <div className="telemetry text-xs text-cyan shrink-0">Q{n}</div>
+        <div className="text-sm leading-relaxed">{prompt}</div>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        {options.map((opt, i) => {
+          const isPicked = picked === i;
+          const isCorrect = picked !== null && i === correctIndex;
+          const isWrongPick = isPicked && i !== correctIndex;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setPicked(i)}
+              className={
+                "rounded-md border px-3 py-2 text-left text-sm transition " +
+                (isCorrect
+                  ? "border-primary/60 bg-primary/10 text-primary"
+                  : isWrongPick
+                  ? "border-alert/60 bg-alert/10 text-alert"
+                  : "border-border bg-background hover:border-primary/40")
+              }
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {picked !== null && (
+        <div className="mt-2 text-xs">
+          {picked === correctIndex ? (
+            <span className="inline-flex items-center gap-1 text-primary">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Correct.
+            </span>
+          ) : (
+            <span className="text-alert">Not quite — try another option.</span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

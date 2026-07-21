@@ -314,13 +314,36 @@ function LearnOrbitStage({ onBack, onNext }: { onBack: () => void; onNext: () =>
           </div>
           <Slider value={[altitude]} min={200} max={2000} step={10} onValueChange={(v) => setAltitude(v[0]!)} className="mt-3" />
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <Stat label="Period" value={`${period.toFixed(1)} min`} />
-            <Stat label="Velocity" value={`${velocity.toFixed(2)} km/s`} tone="orange" />
+            <Stat label="Period (T)" value={`${period.toFixed(1)} min`} />
+            <Stat label="Velocity (v)" value={`${velocity.toFixed(2)} km/s`} tone="orange" />
           </div>
           <div className="mt-4 rounded-md bg-secondary/40 p-3 text-xs text-muted-foreground">
             The ISS orbits at ~408 km, ~7.66 km/s, once every ~92.7 minutes.
           </div>
         </GlassPanel>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <FormulaCard
+          term="Orbital Period (T)"
+          definition="The time it takes to complete one full lap around Earth. Higher orbits are slower and take longer."
+          formula="T = 2π √( a³ / GM )"
+          variables={[
+            ["a", "Orbital radius = Earth radius (6,371 km) + altitude"],
+            ["G", "Gravitational constant = 6.674 × 10⁻¹¹ N·m²/kg²"],
+            ["M", "Mass of Earth = 5.972 × 10²⁴ kg"],
+          ]}
+          example={`At 408 km: a = 6,779 km → T ≈ ${orbitalPeriodMinutes(408).toFixed(1)} min`}
+        />
+        <FormulaCard
+          term="Orbital Velocity (v)"
+          definition="The speed needed to stay in a stable circular orbit at that altitude. Higher orbits require less speed."
+          formula="v = √( GM / a )"
+          variables={[
+            ["a", "Orbital radius (m)"],
+            ["G, M", "Same constants as above"],
+          ]}
+          example={`At 408 km: v ≈ ${orbitalVelocityKms(408).toFixed(2)} km/s (~27,600 km/h)`}
+        />
       </div>
       <StageNav onBack={onBack} onNext={onNext} nextLabel="Continue" />
     </div>
@@ -388,6 +411,17 @@ function AnalyseStage(props: {
               </button>
             ))}
           </div>
+          <div className="mt-3 rounded-md border border-border bg-secondary/30 p-3 text-xs text-muted-foreground leading-relaxed">
+            {direction === "prograde" && (
+              <><span className="text-cyan font-semibold">Prograde</span> — burn in the direction of motion. Adds energy, raises orbit, shifts you <em>ahead</em> along the track over time. Full effect on along-track position.</>
+            )}
+            {direction === "retrograde" && (
+              <><span className="text-cyan font-semibold">Retrograde</span> — burn opposite to motion. Removes energy, lowers orbit, shifts you <em>behind</em> along the track. Full effect on along-track position.</>
+            )}
+            {direction === "radial" && (
+              <><span className="text-cyan font-semibold">Radial</span> — burn perpendicular to motion (toward or away from Earth). Distorts the orbit shape but produces only ~35% of the along-track shift a prograde/retrograde burn would.</>
+            )}
+          </div>
 
           <div className="mt-6 flex items-baseline justify-between">
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Minutes before conjunction</div>
@@ -425,6 +459,21 @@ function AnalyseStage(props: {
           )}
         </GlassPanel>
       </div>
+
+      <FormulaCard
+        term="Along-track shift (Δs)"
+        definition="The distance the ISS is displaced along its orbit by the time debris arrives. This is what your projected miss distance is built from."
+        formula="Δs ≈ Δv × t × k"
+        variables={[
+          ["Δv", "Burn magnitude (m/s) — the delta-v slider"],
+          ["t", "Time before conjunction (seconds) — the minutes slider × 60"],
+          ["k", "Direction factor: 1.0 for prograde/retrograde, 0.35 for radial"],
+        ]}
+        example={`Now: Δv=${deltaV.toFixed(2)} m/s · t=${minutesBefore*60}s · k=${direction==="radial"?"0.35":"1.0"} → Δs ≈ ${(deltaV*minutesBefore*60*(direction==="radial"?0.35:1)/1000).toFixed(2)} km`}
+      />
+
+      <PracticeQuestions deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
+
       <StageNav onBack={onBack} onNext={onNext} nextLabel="View debrief" nextDisabled={!committed} />
     </div>
   );
@@ -654,6 +703,123 @@ function TSection({ title, items, tone }: { title: string; items: string[]; tone
     </div>
   );
 }
+
+/* ---------------- Formula & practice ---------------- */
+
+function FormulaCard({ term, definition, formula, variables, example }: {
+  term: string; definition: string; formula: string; variables: [string, string][]; example?: string;
+}) {
+  return (
+    <GlassPanel className="p-5">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Definition · Formula</div>
+      <div className="mt-1 font-display text-lg font-semibold">{term}</div>
+      <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{definition}</p>
+      <div className="mt-3 rounded-md border border-primary/30 bg-primary/5 px-4 py-3 telemetry text-base sm:text-lg text-cyan text-center">
+        {formula}
+      </div>
+      <ul className="mt-3 space-y-1 text-xs">
+        {variables.map(([sym, desc]) => (
+          <li key={sym} className="flex gap-2">
+            <span className="telemetry text-cyan shrink-0 w-14">{sym}</span>
+            <span className="text-muted-foreground">{desc}</span>
+          </li>
+        ))}
+      </ul>
+      {example && (
+        <div className="mt-3 rounded-md bg-secondary/40 px-3 py-2 text-xs text-foreground/80">
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Worked example · </span>
+          {example}
+        </div>
+      )}
+    </GlassPanel>
+  );
+}
+
+function PracticeQuestions({ deltaV, minutesBefore, direction }: {
+  deltaV: number; minutesBefore: number; direction: "prograde" | "retrograde" | "radial";
+}) {
+  // Q1: computed from current sliders — students must compute along-track shift in km.
+  const k = direction === "radial" ? 0.35 : 1;
+  const q1Answer = (deltaV * minutesBefore * 60 * k) / 1000; // km
+  // Q2: fixed scenario — Δv=0.8 m/s prograde, 15 min before → 0.72 km
+  const q2Answer = (0.8 * 15 * 60 * 1) / 1000;
+  // Q3: fixed altitude question — period at 500 km
+  const q3Answer = orbitalPeriodMinutes(500);
+
+  return (
+    <GlassPanel className="p-6">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Check your maths</div>
+      <div className="mt-1 font-display text-lg font-semibold">Use the formulas to justify your recommendation</div>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Work these out on paper first, then type your answer. Round to 2 decimal places.
+      </p>
+      <div className="mt-4 space-y-3">
+        <Question
+          n={1}
+          prompt={`Using your current settings (Δv = ${deltaV.toFixed(2)} m/s, t = ${minutesBefore} min, direction = ${direction}), what is the along-track shift Δs in kilometres? Formula: Δs = Δv × t × k ÷ 1000.`}
+          answer={q1Answer}
+          unit="km"
+          tolerance={0.05}
+        />
+        <Question
+          n={2}
+          prompt="A prograde burn of Δv = 0.8 m/s is applied 15 minutes before conjunction. What along-track shift does this produce (in km)?"
+          answer={q2Answer}
+          unit="km"
+          tolerance={0.05}
+        />
+        <Question
+          n={3}
+          prompt="Using T = 2π√(a³/GM) with G = 6.674×10⁻¹¹, M = 5.972×10²⁴ kg, and Earth's radius 6,371 km, what is the orbital period (in minutes) at an altitude of 500 km?"
+          answer={q3Answer}
+          unit="min"
+          tolerance={0.5}
+        />
+      </div>
+    </GlassPanel>
+  );
+}
+
+function Question({ n, prompt, answer, unit, tolerance }: {
+  n: number; prompt: string; answer: number; unit: string; tolerance: number;
+}) {
+  const [val, setVal] = useState("");
+  const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
+  const check = () => {
+    const num = parseFloat(val);
+    if (isNaN(num)) { setStatus("wrong"); return; }
+    setStatus(Math.abs(num - answer) <= tolerance ? "correct" : "wrong");
+  };
+  return (
+    <div className="rounded-md border border-border bg-surface p-4">
+      <div className="flex gap-3">
+        <div className="telemetry text-xs text-cyan shrink-0">Q{n}</div>
+        <div className="text-sm leading-relaxed">{prompt}</div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <input
+          value={val}
+          onChange={(e) => { setVal(e.target.value); setStatus("idle"); }}
+          inputMode="decimal"
+          placeholder="Your answer"
+          className="w-32 rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:border-primary/60"
+        />
+        <span className="text-xs text-muted-foreground">{unit}</span>
+        <Button size="sm" variant="outline" onClick={check}>Check</Button>
+        {status === "correct" && (
+          <span className="inline-flex items-center gap-1 text-xs text-primary">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Correct — {answer.toFixed(2)} {unit}
+          </span>
+        )}
+        {status === "wrong" && (
+          <span className="text-xs text-alert">Not quite — try again. Re-check units and rounding.</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 
 /* Certificate: generated as an inline SVG data URI so the demo has no server dependency. */
 function certificateDataUri(name: string) {

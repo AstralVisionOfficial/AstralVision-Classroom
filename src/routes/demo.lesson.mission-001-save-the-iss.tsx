@@ -484,7 +484,7 @@ function AnalyseStage(props: {
         example={`Now: Δv=${deltaV.toFixed(2)} m/s · t=${minutesBefore*60}s · k=${direction==="radial"?"0.35":"1.0"} → Δs ≈ ${(deltaV*minutesBefore*60*(direction==="radial"?0.35:1)/1000).toFixed(2)} km`}
       />
 
-      <PracticeQuestions deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
+      <PracticeQuestions tier={tier} deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
 
       <StageNav onBack={onBack} onNext={onNext} nextLabel="View debrief" nextDisabled={!committed} />
     </div>

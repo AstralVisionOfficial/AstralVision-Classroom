@@ -1,36 +1,53 @@
-## Goal
-Make Astral Vision deploy cleanly outside Lovable, especially on Vercel and GitHub.
+# Grade-Aware Student Experience
 
-## What I found
-- The app is a TanStack Start SSR app, not a static Vite/Solid site.
-- `.github/workflows/deploy.yml` is currently configured as “Deploy Vite Solid Site” and uploads `dist`, which is the wrong deployment shape for this project.
-- `vite.config.ts` uses the raw TanStack Start plugin, but the project already includes Lovable’s TanStack deployment config package that should wire the custom `src/server.ts` entry and production output correctly.
-- There are both `bun.lock` and `package-lock.json`, which can make Vercel/GitHub choose different package managers and produce inconsistent builds.
+Add a grade picker before the student enters a lesson, then scale Mission 001's vocabulary/explanations and practice questions to the chosen tier. Formulas and the manoeuvre sim stay the same across tiers.
 
-## Plan
-1. Replace the Vite config with the Lovable TanStack config wrapper.
-   - Keep React, Tailwind, tsconfig paths, and TanStack Start support.
-   - Wire `tanstackStart.server.entry` to the existing `src/server.ts` wrapper.
+## Tiers
 
-2. Add Vercel deployment config.
-   - Add `vercel.json` so Vercel knows this is a server-rendered TanStack app rather than a plain static `dist` upload.
-   - Ensure all routes are handled by the server output.
+- **Foundation** — Years 5–6
+- **Standard** — Years 7–9 (default; current content)
+- **Advanced** — Years 10–12
 
-3. Replace the GitHub Pages workflow.
-   - GitHub Pages is static hosting and is not appropriate for the current SSR/auth/server-function app.
-   - Replace it with a GitHub Actions workflow that builds the app and deploys to Vercel using Vercel’s CLI, requiring Vercel secrets in the GitHub repo.
+## Flow
 
-4. Standardize package-manager expectations.
-   - Keep the project aligned around the lockfile/build command that works best for this app.
-   - Avoid deployment platforms accidentally using the wrong install path.
+```text
+Landing → "View Student Experience"
+        → /demo/classroom  (existing)
+        → NEW: Grade Picker screen (3 tier cards + year buttons)
+        → Mission 001 lesson (adapts to selected tier)
+```
 
-5. Add a short deployment note.
-   - Document the needed Vercel/GitHub secrets and the correct commands so future publishing is straightforward.
+Selected tier persists in `localStorage` (`astral:grade-tier`) and is shown as a chip in the lesson header. A "Change grade" link returns to the picker.
+
+## Content differences per tier
+
+Only two axes change (per your answers). Formulas, sliders, and mission flow are unchanged.
+
+**Vocabulary & explanations**
+- Foundation: plain-English analogies. "Δv" written as "small push"; Kepler's law described as "higher orbits take longer laps"; debris framed as "space junk". Shorter paragraphs.
+- Standard: current wording — technical terms introduced with definitions (Δv, prograde, conjunction).
+- Advanced: assumes fluency — adds nuance (specific impulse mention, why radial burns distort orbit shape, real conjunction thresholds).
+
+**Practice questions** (the "Check your maths" block)
+- Foundation: 3 multiple-choice questions. Pick the closest along-track shift; pick which burn direction moves the ISS ahead; pick which timing gives the biggest shift.
+- Standard: current 3 numeric questions with ±0.05 km / ±0.5 min tolerance.
+- Advanced: 4 numeric questions with tighter tolerance (±0.02 km). Adds one two-step question (compute Δs, then judge whether it clears the 2 km safety threshold).
+
+The Commit-recommendation gate on the manoeuvre panel is unchanged for all tiers.
+
+## Files to change
+
+- `src/routes/demo.classroom.tsx` — replace "Launch Mission 001" CTA with "Choose your year level", then route to the lesson with the selected tier.
+- `src/routes/demo.lesson.mission-001-save-the-iss.tsx` — read tier from localStorage (fallback to Standard), branch copy in `BriefingStage`, `LearnOrbitStage`, `LearnDebrisStage`, `AnalyseStage`; swap `PracticeQuestions` for tier-specific variant. Add tier chip + "Change grade" link in the header bar.
+- `src/lib/mission-001.ts` — add `MissionTier` type, `TIER_COPY` (per-tier paragraphs and question sets), helper `getTier()` / `setTier()`.
+- No new routes, no schema changes, no backend work.
 
 ## Technical details
-- Required GitHub repository secrets for Vercel deploy will be:
-  - `VERCEL_TOKEN`
-  - `VERCEL_ORG_ID`
-  - `VERCEL_PROJECT_ID`
-- Required runtime/build environment variables on Vercel will include the existing public backend variables already used by the app.
-- GitHub Pages will not support authenticated routes or TanStack server functions for this app without converting it to a static-only build, which would remove key functionality.
+
+- Tier state lives in a small `useTier()` hook backed by `localStorage`, read in `useEffect` to avoid SSR hydration mismatch (initial render assumes Standard).
+- Question definitions become data: `TIER_COPY[tier].questions: Array<{prompt, type: "mc" | "numeric", answer, options?, tolerance?}>`. The existing `Question` component gains an MC branch.
+- Grade picker is inline on `/demo/classroom` (not a new route) — three tier cards with year-band buttons underneath each.
+
+## Out of scope
+
+- Formula depth changes, alternative manoeuvre sims, per-year (not per-tier) content, saving tier to the user profile in Cloud, teacher-locked tiers. Flag any of these if you want them included and I'll extend the plan.

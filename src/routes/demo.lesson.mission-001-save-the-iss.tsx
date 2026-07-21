@@ -459,6 +459,21 @@ function AnalyseStage(props: {
           )}
         </GlassPanel>
       </div>
+
+      <FormulaCard
+        term="Along-track shift (Δs)"
+        definition="The distance the ISS is displaced along its orbit by the time debris arrives. This is what your projected miss distance is built from."
+        formula="Δs ≈ Δv × t × k"
+        variables={[
+          ["Δv", "Burn magnitude (m/s) — the delta-v slider"],
+          ["t", "Time before conjunction (seconds) — the minutes slider × 60"],
+          ["k", "Direction factor: 1.0 for prograde/retrograde, 0.35 for radial"],
+        ]}
+        example={`Now: Δv=${deltaV.toFixed(2)} m/s · t=${minutesBefore*60}s · k=${direction==="radial"?"0.35":"1.0"} → Δs ≈ ${(deltaV*minutesBefore*60*(direction==="radial"?0.35:1)/1000).toFixed(2)} km`}
+      />
+
+      <PracticeQuestions deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
+
       <StageNav onBack={onBack} onNext={onNext} nextLabel="View debrief" nextDisabled={!committed} />
     </div>
   );

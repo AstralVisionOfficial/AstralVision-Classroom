@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import {
   MISSION_001, MISSION_001_CURRICULUM,
   orbitalPeriodMinutes, orbitalVelocityKms, estimateMissKm,
+  type MissionTier, TIER_META, TIER_COPY, getTier, type PracticeQuestion,
 } from "@/lib/mission-001";
 import {
   AlertTriangle, Rocket, ArrowRight, ArrowLeft, Sparkles, ClipboardCheck,
@@ -57,6 +58,10 @@ function LessonPage() {
 
   const [reflections, setReflections] = useState<Record<number, string>>({});
 
+  // Tier is read from localStorage after hydration; SSR default is "standard".
+  const [tier, setTierState] = useState<MissionTier>("standard");
+  useEffect(() => { setTierState(getTier()); }, []);
+
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [stage]);
 
   return (
@@ -72,6 +77,14 @@ function LessonPage() {
               AC {MISSION_001_CURRICULUM.code} · {MISSION_001_CURRICULUM.yearLevel} · {MISSION_001_CURRICULUM.strand}
             </div>
             <div className="ml-auto flex items-center gap-3">
+              <Link
+                to="/demo/mission"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-primary hover:bg-primary/10"
+                title="Change grade level"
+              >
+                <span>{TIER_META[tier].label}</span>
+                <span className="text-muted-foreground normal-case tracking-normal">· {TIER_META[tier].years}</span>
+              </Link>
               <span className="hidden sm:inline text-[11px] text-muted-foreground telemetry">
                 Stage {idx}/{STAGES.length - 1}
               </span>
@@ -93,15 +106,16 @@ function LessonPage() {
           />
         )}
         {stage === "alert" && <AlertStage onContinue={() => setStage("briefing")} />}
-        {stage === "briefing" && <BriefingStage onContinue={() => setStage("learn-orbit")} />}
+        {stage === "briefing" && <BriefingStage tier={tier} onContinue={() => setStage("learn-orbit")} />}
         {stage === "learn-orbit" && (
-          <LearnOrbitStage onBack={() => setStage("briefing")} onNext={() => setStage("learn-debris")} />
+          <LearnOrbitStage tier={tier} onBack={() => setStage("briefing")} onNext={() => setStage("learn-debris")} />
         )}
         {stage === "learn-debris" && (
-          <LearnDebrisStage onBack={() => setStage("learn-orbit")} onNext={() => setStage("analyse")} />
+          <LearnDebrisStage tier={tier} onBack={() => setStage("learn-orbit")} onNext={() => setStage("analyse")} />
         )}
         {stage === "analyse" && (
           <AnalyseStage
+            tier={tier}
             deltaV={deltaV} setDeltaV={setDeltaV}
             direction={direction} setDirection={setDirection}
             minutesBefore={minutesBefore} setMinutesBefore={setMinutesBefore}
@@ -258,15 +272,17 @@ function Line({ k, v, highlight }: { k: string; v: string; highlight?: boolean }
   );
 }
 
-function BriefingStage({ onContinue }: { onContinue: () => void }) {
+function BriefingStage({ tier, onContinue }: { tier: MissionTier; onContinue: () => void }) {
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Briefing" title="Flight Director requests your assistance" />
       <GlassPanel className="p-6 sm:p-8">
-        <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">
-          The station cannot move quickly. Any manoeuvre costs fuel, disrupts experiments, and requires
-          precise timing. Your job is to <span className="text-cyan font-semibold">decide whether to burn</span>,
-          and if so, <span className="text-cyan font-semibold">how much and in which direction</span>.
+        <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan">
+          {TIER_META[tier].label} · {TIER_META[tier].years}
+        </div>
+        <p className="mt-3 text-sm sm:text-base text-foreground/90 leading-relaxed">
+          {copy.briefing}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
@@ -290,22 +306,18 @@ function BriefingStage({ onContinue }: { onContinue: () => void }) {
   );
 }
 
-function LearnOrbitStage({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+function LearnOrbitStage({ tier, onBack, onNext }: { tier: MissionTier; onBack: () => void; onNext: () => void }) {
   const [altitude, setAltitude] = useState(408); // ISS altitude
   const period = orbitalPeriodMinutes(altitude);
   const velocity = orbitalVelocityKms(altitude);
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Learn · Stage 1" title="Orbital Motion — how altitude changes the game" />
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <GlassPanel className="p-6">
-          <p className="text-sm sm:text-base leading-relaxed">
-            An orbit is <em>free-fall around the Earth</em>. The higher you go, the slower you need to travel to
-            stay in a stable circular orbit — but the longer each lap takes. This is Kepler's third law.
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Drag the slider to change altitude. Watch how the period and velocity change.
-          </p>
+          <p className="text-sm sm:text-base leading-relaxed">{copy.learnOrbitLead}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{copy.learnOrbitHint}</p>
         </GlassPanel>
         <GlassPanel className="p-6">
           <div className="flex items-baseline justify-between">
@@ -350,27 +362,25 @@ function LearnOrbitStage({ onBack, onNext }: { onBack: () => void; onNext: () =>
   );
 }
 
-function LearnDebrisStage({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+function LearnDebrisStage({ tier, onBack, onNext }: { tier: MissionTier; onBack: () => void; onNext: () => void }) {
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Learn · Stage 2" title="Gravity, Debris & the Kessler problem" />
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <GlassPanel className="p-6">
-          <p className="text-sm sm:text-base leading-relaxed">
-            Space is not empty. There are over <span className="text-cyan font-semibold">36,500 tracked objects</span>
-            larger than 10 cm orbiting Earth — plus an estimated <span className="text-cyan font-semibold">1 million</span> between 1 and 10 cm.
-            Each moves at roughly 7-8 km/s.
-          </p>
+          <p className="text-sm sm:text-base leading-relaxed">{copy.learnDebrisLead}</p>
           <p className="mt-3 text-sm text-muted-foreground">
-            A 1 cm fragment carries the kinetic energy of a hand grenade at those speeds. That's why even
-            small debris on a projected path is treated as a critical threat.
+            {tier === "foundation"
+              ? "Even a tiny piece can smash a satellite because it is moving so fast. That is why we track the sky and move things out of the way."
+              : tier === "advanced"
+              ? "Hypervelocity impact at ~14 km/s deposits kinetic energy comparable to explosives per gram. Debris avoidance is a routine part of station keeping."
+              : "A 1 cm fragment carries the kinetic energy of a hand grenade at those speeds. That's why even small debris on a projected path is treated as a critical threat."}
           </p>
         </GlassPanel>
         <GlassPanel className="p-6">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Key idea</div>
-          <div className="mt-2 font-display text-xl font-semibold">
-            Small velocity changes → large positional changes.
-          </div>
+          <div className="mt-2 font-display text-xl font-semibold">{copy.learnDebrisKey}</div>
           <p className="mt-3 text-sm text-muted-foreground">
             A tiny burn of just a few m/s applied 20 minutes before conjunction can shift the ISS by
             kilometres by the time debris arrives. That's the manoeuvre you'll design next.
@@ -383,13 +393,15 @@ function LearnDebrisStage({ onBack, onNext }: { onBack: () => void; onNext: () =
 }
 
 function AnalyseStage(props: {
+  tier: MissionTier;
   deltaV: number; setDeltaV: (n: number) => void;
   direction: "prograde" | "retrograde" | "radial"; setDirection: (d: "prograde" | "retrograde" | "radial") => void;
   minutesBefore: number; setMinutesBefore: (n: number) => void;
   missKm: number; success: boolean; committed: boolean;
   onCommit: () => void; onBack: () => void; onNext: () => void;
 }) {
-  const { deltaV, setDeltaV, direction, setDirection, minutesBefore, setMinutesBefore, missKm, success, committed, onCommit, onBack, onNext } = props;
+  const { tier, deltaV, setDeltaV, direction, setDirection, minutesBefore, setMinutesBefore, missKm, success, committed, onCommit, onBack, onNext } = props;
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Analyse" title="Recommend the manoeuvre" />
@@ -472,7 +484,7 @@ function AnalyseStage(props: {
         example={`Now: Δv=${deltaV.toFixed(2)} m/s · t=${minutesBefore*60}s · k=${direction==="radial"?"0.35":"1.0"} → Δs ≈ ${(deltaV*minutesBefore*60*(direction==="radial"?0.35:1)/1000).toFixed(2)} km`}
       />
 
-      <PracticeQuestions deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
+      <PracticeQuestions tier={tier} deltaV={deltaV} minutesBefore={minutesBefore} direction={direction} />
 
       <StageNav onBack={onBack} onNext={onNext} nextLabel="View debrief" nextDisabled={!committed} />
     </div>
@@ -735,48 +747,77 @@ function FormulaCard({ term, definition, formula, variables, example }: {
   );
 }
 
-function PracticeQuestions({ deltaV, minutesBefore, direction }: {
-  deltaV: number; minutesBefore: number; direction: "prograde" | "retrograde" | "radial";
+function PracticeQuestions({ tier, deltaV, minutesBefore, direction }: {
+  tier: MissionTier; deltaV: number; minutesBefore: number; direction: "prograde" | "retrograde" | "radial";
 }) {
-  // Q1: computed from current sliders — students must compute along-track shift in km.
-  const k = direction === "radial" ? 0.35 : 1;
-  const q1Answer = (deltaV * minutesBefore * 60 * k) / 1000; // km
-  // Q2: fixed scenario — Δv=0.8 m/s prograde, 15 min before → 0.72 km
-  const q2Answer = (0.8 * 15 * 60 * 1) / 1000;
-  // Q3: fixed altitude question — period at 500 km
-  const q3Answer = orbitalPeriodMinutes(500);
-
+  const copy = TIER_COPY[tier];
+  const questions = copy.questions({ deltaV, minutesBefore, direction });
   return (
     <GlassPanel className="p-6">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Check your maths</div>
-      <div className="mt-1 font-display text-lg font-semibold">Use the formulas to justify your recommendation</div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Work these out on paper first, then type your answer. Round to 2 decimal places.
-      </p>
+      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">{copy.practiceHeading}</div>
+      <div className="mt-1 font-display text-lg font-semibold">
+        {tier === "foundation" ? "Quick check — pick the best answer" : "Use the formulas to justify your recommendation"}
+      </div>
+      <p className="mt-1 text-sm text-muted-foreground">{copy.practiceLead}</p>
       <div className="mt-4 space-y-3">
-        <Question
-          n={1}
-          prompt={`Using your current settings (Δv = ${deltaV.toFixed(2)} m/s, t = ${minutesBefore} min, direction = ${direction}), what is the along-track shift Δs in kilometres? Formula: Δs = Δv × t × k ÷ 1000.`}
-          answer={q1Answer}
-          unit="km"
-          tolerance={0.05}
-        />
-        <Question
-          n={2}
-          prompt="A prograde burn of Δv = 0.8 m/s is applied 15 minutes before conjunction. What along-track shift does this produce (in km)?"
-          answer={q2Answer}
-          unit="km"
-          tolerance={0.05}
-        />
-        <Question
-          n={3}
-          prompt="Using T = 2π√(a³/GM) with G = 6.674×10⁻¹¹, M = 5.972×10²⁴ kg, and Earth's radius 6,371 km, what is the orbital period (in minutes) at an altitude of 500 km?"
-          answer={q3Answer}
-          unit="min"
-          tolerance={0.5}
-        />
+        {questions.map((q, i) => (
+          q.kind === "numeric" ? (
+            <Question key={i} n={i + 1} prompt={q.prompt} answer={q.answer} unit={q.unit} tolerance={q.tolerance} />
+          ) : (
+            <MultipleChoiceQuestion key={i} n={i + 1} prompt={q.prompt} options={q.options} correctIndex={q.correctIndex} />
+          )
+        ))}
       </div>
     </GlassPanel>
+  );
+}
+
+function MultipleChoiceQuestion({ n, prompt, options, correctIndex }: {
+  n: number; prompt: string; options: string[]; correctIndex: number;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  return (
+    <div className="rounded-md border border-border bg-surface p-4">
+      <div className="flex gap-3">
+        <div className="telemetry text-xs text-cyan shrink-0">Q{n}</div>
+        <div className="text-sm leading-relaxed">{prompt}</div>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        {options.map((opt, i) => {
+          const isPicked = picked === i;
+          const isCorrect = picked !== null && i === correctIndex;
+          const isWrongPick = isPicked && i !== correctIndex;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setPicked(i)}
+              className={
+                "rounded-md border px-3 py-2 text-left text-sm transition " +
+                (isCorrect
+                  ? "border-primary/60 bg-primary/10 text-primary"
+                  : isWrongPick
+                  ? "border-alert/60 bg-alert/10 text-alert"
+                  : "border-border bg-background hover:border-primary/40")
+              }
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {picked !== null && (
+        <div className="mt-2 text-xs">
+          {picked === correctIndex ? (
+            <span className="inline-flex items-center gap-1 text-primary">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Correct.
+            </span>
+          ) : (
+            <span className="text-alert">Not quite — try another option.</span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

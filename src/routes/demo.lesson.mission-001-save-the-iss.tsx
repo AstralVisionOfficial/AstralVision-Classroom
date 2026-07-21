@@ -314,13 +314,36 @@ function LearnOrbitStage({ onBack, onNext }: { onBack: () => void; onNext: () =>
           </div>
           <Slider value={[altitude]} min={200} max={2000} step={10} onValueChange={(v) => setAltitude(v[0]!)} className="mt-3" />
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <Stat label="Period" value={`${period.toFixed(1)} min`} />
-            <Stat label="Velocity" value={`${velocity.toFixed(2)} km/s`} tone="orange" />
+            <Stat label="Period (T)" value={`${period.toFixed(1)} min`} />
+            <Stat label="Velocity (v)" value={`${velocity.toFixed(2)} km/s`} tone="orange" />
           </div>
           <div className="mt-4 rounded-md bg-secondary/40 p-3 text-xs text-muted-foreground">
             The ISS orbits at ~408 km, ~7.66 km/s, once every ~92.7 minutes.
           </div>
         </GlassPanel>
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <FormulaCard
+          term="Orbital Period (T)"
+          definition="The time it takes to complete one full lap around Earth. Higher orbits are slower and take longer."
+          formula="T = 2π √( a³ / GM )"
+          variables={[
+            ["a", "Orbital radius = Earth radius (6,371 km) + altitude"],
+            ["G", "Gravitational constant = 6.674 × 10⁻¹¹ N·m²/kg²"],
+            ["M", "Mass of Earth = 5.972 × 10²⁴ kg"],
+          ]}
+          example={`At 408 km: a = 6,779 km → T ≈ ${orbitalPeriodMinutes(408).toFixed(1)} min`}
+        />
+        <FormulaCard
+          term="Orbital Velocity (v)"
+          definition="The speed needed to stay in a stable circular orbit at that altitude. Higher orbits require less speed."
+          formula="v = √( GM / a )"
+          variables={[
+            ["a", "Orbital radius (m)"],
+            ["G, M", "Same constants as above"],
+          ]}
+          example={`At 408 km: v ≈ ${orbitalVelocityKms(408).toFixed(2)} km/s (~27,600 km/h)`}
+        />
       </div>
       <StageNav onBack={onBack} onNext={onNext} nextLabel="Continue" />
     </div>

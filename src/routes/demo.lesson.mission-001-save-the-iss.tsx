@@ -272,15 +272,17 @@ function Line({ k, v, highlight }: { k: string; v: string; highlight?: boolean }
   );
 }
 
-function BriefingStage({ onContinue }: { onContinue: () => void }) {
+function BriefingStage({ tier, onContinue }: { tier: MissionTier; onContinue: () => void }) {
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Briefing" title="Flight Director requests your assistance" />
       <GlassPanel className="p-6 sm:p-8">
-        <p className="text-sm sm:text-base text-foreground/90 leading-relaxed">
-          The station cannot move quickly. Any manoeuvre costs fuel, disrupts experiments, and requires
-          precise timing. Your job is to <span className="text-cyan font-semibold">decide whether to burn</span>,
-          and if so, <span className="text-cyan font-semibold">how much and in which direction</span>.
+        <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-cyan">
+          {TIER_META[tier].label} · {TIER_META[tier].years}
+        </div>
+        <p className="mt-3 text-sm sm:text-base text-foreground/90 leading-relaxed">
+          {copy.briefing}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
@@ -304,22 +306,18 @@ function BriefingStage({ onContinue }: { onContinue: () => void }) {
   );
 }
 
-function LearnOrbitStage({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+function LearnOrbitStage({ tier, onBack, onNext }: { tier: MissionTier; onBack: () => void; onNext: () => void }) {
   const [altitude, setAltitude] = useState(408); // ISS altitude
   const period = orbitalPeriodMinutes(altitude);
   const velocity = orbitalVelocityKms(altitude);
+  const copy = TIER_COPY[tier];
   return (
     <div className="animate-fade-in-up space-y-6">
       <StageHeader eyebrow="Learn · Stage 1" title="Orbital Motion — how altitude changes the game" />
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         <GlassPanel className="p-6">
-          <p className="text-sm sm:text-base leading-relaxed">
-            An orbit is <em>free-fall around the Earth</em>. The higher you go, the slower you need to travel to
-            stay in a stable circular orbit — but the longer each lap takes. This is Kepler's third law.
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Drag the slider to change altitude. Watch how the period and velocity change.
-          </p>
+          <p className="text-sm sm:text-base leading-relaxed">{copy.learnOrbitLead}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{copy.learnOrbitHint}</p>
         </GlassPanel>
         <GlassPanel className="p-6">
           <div className="flex items-baseline justify-between">

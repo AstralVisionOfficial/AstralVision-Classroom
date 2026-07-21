@@ -411,6 +411,17 @@ function AnalyseStage(props: {
               </button>
             ))}
           </div>
+          <div className="mt-3 rounded-md border border-border bg-secondary/30 p-3 text-xs text-muted-foreground leading-relaxed">
+            {direction === "prograde" && (
+              <><span className="text-cyan font-semibold">Prograde</span> — burn in the direction of motion. Adds energy, raises orbit, shifts you <em>ahead</em> along the track over time. Full effect on along-track position.</>
+            )}
+            {direction === "retrograde" && (
+              <><span className="text-cyan font-semibold">Retrograde</span> — burn opposite to motion. Removes energy, lowers orbit, shifts you <em>behind</em> along the track. Full effect on along-track position.</>
+            )}
+            {direction === "radial" && (
+              <><span className="text-cyan font-semibold">Radial</span> — burn perpendicular to motion (toward or away from Earth). Distorts the orbit shape but produces only ~35% of the along-track shift a prograde/retrograde burn would.</>
+            )}
+          </div>
 
           <div className="mt-6 flex items-baseline justify-between">
             <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan">Minutes before conjunction</div>

@@ -58,6 +58,10 @@ function LessonPage() {
 
   const [reflections, setReflections] = useState<Record<number, string>>({});
 
+  // Tier is read from localStorage after hydration; SSR default is "standard".
+  const [tier, setTierState] = useState<MissionTier>("standard");
+  useEffect(() => { setTierState(getTier()); }, []);
+
   useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [stage]);
 
   return (

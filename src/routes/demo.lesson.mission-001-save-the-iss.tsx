@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import {
   MISSION_001, MISSION_001_CURRICULUM,
   orbitalPeriodMinutes, orbitalVelocityKms, estimateMissKm,
+  type MissionTier, TIER_META, TIER_COPY, getTier, type PracticeQuestion,
 } from "@/lib/mission-001";
 import {
   AlertTriangle, Rocket, ArrowRight, ArrowLeft, Sparkles, ClipboardCheck,

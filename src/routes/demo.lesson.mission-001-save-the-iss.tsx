@@ -77,6 +77,14 @@ function LessonPage() {
               AC {MISSION_001_CURRICULUM.code} · {MISSION_001_CURRICULUM.yearLevel} · {MISSION_001_CURRICULUM.strand}
             </div>
             <div className="ml-auto flex items-center gap-3">
+              <Link
+                to="/demo/mission"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-primary hover:bg-primary/10"
+                title="Change grade level"
+              >
+                <span>{TIER_META[tier].label}</span>
+                <span className="text-muted-foreground normal-case tracking-normal">· {TIER_META[tier].years}</span>
+              </Link>
               <span className="hidden sm:inline text-[11px] text-muted-foreground telemetry">
                 Stage {idx}/{STAGES.length - 1}
               </span>

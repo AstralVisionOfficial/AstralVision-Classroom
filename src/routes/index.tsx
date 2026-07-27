@@ -51,8 +51,8 @@ function Welcome() {
                 asChild size="lg"
                 className="bg-cyan-grad text-primary-foreground hover:opacity-90 cyan-glow"
               >
-                <Link to="/demo/classroom">
-                  Launch Teacher Demo <ArrowRight className="ml-1 h-4 w-4" />
+                <Link to="/demo/mission-control">
+                  Launch Classroom Demo <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-border">
@@ -247,8 +247,8 @@ function Welcome() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="bg-cyan-grad text-primary-foreground hover:opacity-90 cyan-glow">
-              <Link to="/demo/classroom">
-                Launch Teacher Demo <ArrowRight className="ml-1 h-4 w-4" />
+              <Link to="/demo/mission-control">
+                Launch Classroom Demo <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">

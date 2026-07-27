@@ -231,8 +231,8 @@ function readMissionProgress(): string | null {
 type Alert = { icon: "rocket" | "moon" | "asteroid" | "sun"; label: string; sub: string } | null;
 
 function pickLiveAlert(args: {
-  launch: Awaited<ReturnType<typeof getNextLaunch>>;
-  neo: Awaited<ReturnType<typeof getNextNearEarthObject>>;
+  launch: Awaited<ReturnType<typeof getNextLaunch>> | undefined;
+  neo: Awaited<ReturnType<typeof getNextNearEarthObject>> | undefined;
   moon: ReturnType<typeof getMoonPhase>;
 }): Alert {
   const { launch, neo, moon } = args;
@@ -360,11 +360,11 @@ function SpaceEvents({
   className, launch, iss, neo, moon, weather,
 }: {
   className?: string;
-  launch: Awaited<ReturnType<typeof getNextLaunch>>;
-  iss: Awaited<ReturnType<typeof getISSPosition>>;
-  neo: Awaited<ReturnType<typeof getNextNearEarthObject>>;
+  launch: Awaited<ReturnType<typeof getNextLaunch>> | undefined;
+  iss: Awaited<ReturnType<typeof getISSPosition>> | undefined;
+  neo: Awaited<ReturnType<typeof getNextNearEarthObject>> | undefined;
   moon: ReturnType<typeof getMoonPhase>;
-  weather: Awaited<ReturnType<typeof getSpaceWeather>>;
+  weather: Awaited<ReturnType<typeof getSpaceWeather>> | undefined;
 }) {
   type Event = { dot: string; label: string; sub: string; priority: number };
   const events: Event[] = [];

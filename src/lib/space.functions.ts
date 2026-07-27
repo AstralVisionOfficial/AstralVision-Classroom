@@ -83,3 +83,37 @@ export const getSpaceWeather = createServerFn({ method: "GET" }).handler(async (
     return [];
   }
 });
+
+/** Next Near-Earth Object approach in the next 7 days (NASA NeoWs). */
+export const getNextNearEarthObject = createServerFn({ method: "GET" }).handler(async () => {
+  try {
+    const start = new Date().toISOString().slice(0, 10);
+    const end = new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
+    const j = await nasaFetch("/neo/rest/v1/feed", { start_date: start, end_date: end });
+    const days = j.near_earth_objects as Record<string, Array<Record<string, unknown>>> | undefined;
+    if (!days) return null;
+    const all = Object.values(days).flat();
+    if (all.length === 0) return null;
+    // Pick nearest approach by miss distance
+    type NEO = { name: string; is_potentially_hazardous_asteroid: boolean;
+      close_approach_data: Array<{ close_approach_date_full: string; miss_distance: { kilometers: string }; relative_velocity: { kilometers_per_hour: string } }>;
+      estimated_diameter: { meters: { estimated_diameter_max: number } };
+    };
+    const scored = (all as unknown as NEO[])
+      .map((n) => ({ n, d: parseFloat(n.close_approach_data[0]?.miss_distance?.kilometers ?? "Infinity") }))
+      .sort((a, b) => a.d - b.d);
+    const top = scored[0];
+    if (!top || !isFinite(top.d)) return null;
+    const ca = top.n.close_approach_data[0];
+    return {
+      name: top.n.name,
+      hazardous: top.n.is_potentially_hazardous_asteroid,
+      approachAt: ca.close_approach_date_full,
+      missKm: top.d,
+      velocityKmh: parseFloat(ca.relative_velocity.kilometers_per_hour),
+      diameterM: top.n.estimated_diameter.meters.estimated_diameter_max,
+    };
+  } catch {
+    return null;
+  }
+});

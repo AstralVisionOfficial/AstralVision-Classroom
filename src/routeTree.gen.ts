@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DemoPrincipalRouteImport } from './routes/demo.principal'
+import { Route as DemoMissionControlRouteImport } from './routes/demo.mission-control'
 import { Route as DemoMissionRouteImport } from './routes/demo.mission'
 import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as AuthenticatedMissionControlRouteImport } from './routes/_authenticated/mission-control'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const DemoPrincipalRoute = DemoPrincipalRouteImport.update({
   id: '/demo/principal',
   path: '/demo/principal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoMissionControlRoute = DemoMissionControlRouteImport.update({
+  id: '/demo/mission-control',
+  path: '/demo/mission-control',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoMissionRoute = DemoMissionRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
+  '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
+  '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/_authenticated/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
+  '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
+    | '/demo/mission-control'
     | '/demo/principal'
     | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesByTo: FileRoutesByTo
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
+    | '/demo/mission-control'
     | '/demo/principal'
     | '/demo/lesson/mission-001-save-the-iss'
   id:
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/_authenticated/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
+    | '/demo/mission-control'
     | '/demo/principal'
     | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesById: FileRoutesById
@@ -126,6 +138,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoMissionRoute: typeof DemoMissionRoute
+  DemoMissionControlRoute: typeof DemoMissionControlRoute
   DemoPrincipalRoute: typeof DemoPrincipalRoute
   DemoLessonMission001SaveTheIssRoute: typeof DemoLessonMission001SaveTheIssRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/principal'
       fullPath: '/demo/principal'
       preLoaderRoute: typeof DemoPrincipalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/mission-control': {
+      id: '/demo/mission-control'
+      path: '/demo/mission-control'
+      fullPath: '/demo/mission-control'
+      preLoaderRoute: typeof DemoMissionControlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/mission': {
@@ -208,6 +228,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoMissionRoute: DemoMissionRoute,
+  DemoMissionControlRoute: DemoMissionControlRoute,
   DemoPrincipalRoute: DemoPrincipalRoute,
   DemoLessonMission001SaveTheIssRoute: DemoLessonMission001SaveTheIssRoute,
 }

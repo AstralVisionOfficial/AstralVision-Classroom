@@ -11,8 +11,8 @@ import {
   Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import {
-  AlertTriangle, ArrowRight, ArrowLeft, Radar, CheckCircle2, Rocket,
-  Shield, Sparkles, BookOpen, Award, Play, Target, Telescope,
+  AlertTriangle, ArrowRight, ArrowLeft, Radar, CheckCircle2,
+  Shield, Sparkles, BookOpen, Award, Play, Telescope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

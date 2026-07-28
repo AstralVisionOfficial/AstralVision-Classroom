@@ -6,9 +6,9 @@ import { Radar } from "lucide-react";
 
 const nav = [
   { to: "/", label: "Home" },
-  { to: "/demo/classroom", label: "Teacher Demo" },
-  { to: "/demo/principal", label: "Principal" },
   { to: "/mission-control", label: "Mission Control" },
+  { to: "/lessons", label: "Lessons" },
+  { to: "/demo/principal", label: "Principal" },
 ];
 
 export function TopNav() {

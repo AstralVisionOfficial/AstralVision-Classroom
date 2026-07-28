@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LessonsRouteImport } from './routes/lessons'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LessonsSlugRouteImport } from './routes/lessons.$slug'
 import { Route as DemoPrincipalRouteImport } from './routes/demo.principal'
 import { Route as DemoMissionControlRouteImport } from './routes/demo.mission-control'
 import { Route as DemoMissionRouteImport } from './routes/demo.mission'
@@ -19,6 +21,11 @@ import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as AuthenticatedMissionControlRouteImport } from './routes/_authenticated/mission-control'
 import { Route as DemoLessonMission001SaveTheIssRouteImport } from './routes/demo.lesson.mission-001-save-the-iss'
 
+const LessonsRoute = LessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -32,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LessonsSlugRoute = LessonsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LessonsRoute,
 } as any)
 const DemoPrincipalRoute = DemoPrincipalRouteImport.update({
   id: '/demo/principal',
@@ -69,21 +81,25 @@ const DemoLessonMission001SaveTheIssRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRouteWithChildren
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
   '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
+  '/lessons/$slug': typeof LessonsSlugRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRouteWithChildren
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
   '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
+  '/lessons/$slug': typeof LessonsSlugRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRoutesById {
@@ -91,11 +107,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRouteWithChildren
   '/_authenticated/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
   '/demo/mission-control': typeof DemoMissionControlRoute
   '/demo/principal': typeof DemoPrincipalRoute
+  '/lessons/$slug': typeof LessonsSlugRoute
   '/demo/lesson/mission-001-save-the-iss': typeof DemoLessonMission001SaveTheIssRoute
 }
 export interface FileRouteTypes {
@@ -103,32 +121,38 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/lessons'
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
     | '/demo/mission-control'
     | '/demo/principal'
+    | '/lessons/$slug'
     | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/lessons'
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
     | '/demo/mission-control'
     | '/demo/principal'
+    | '/lessons/$slug'
     | '/demo/lesson/mission-001-save-the-iss'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/lessons'
     | '/_authenticated/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
     | '/demo/mission-control'
     | '/demo/principal'
+    | '/lessons/$slug'
     | '/demo/lesson/mission-001-save-the-iss'
   fileRoutesById: FileRoutesById
 }
@@ -136,6 +160,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  LessonsRoute: typeof LessonsRouteWithChildren
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoMissionRoute: typeof DemoMissionRoute
   DemoMissionControlRoute: typeof DemoMissionControlRoute
@@ -145,6 +170,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/lessons': {
+      id: '/lessons'
+      path: '/lessons'
+      fullPath: '/lessons'
+      preLoaderRoute: typeof LessonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -165,6 +197,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/lessons/$slug': {
+      id: '/lessons/$slug'
+      path: '/$slug'
+      fullPath: '/lessons/$slug'
+      preLoaderRoute: typeof LessonsSlugRouteImport
+      parentRoute: typeof LessonsRoute
     }
     '/demo/principal': {
       id: '/demo/principal'
@@ -222,10 +261,22 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface LessonsRouteChildren {
+  LessonsSlugRoute: typeof LessonsSlugRoute
+}
+
+const LessonsRouteChildren: LessonsRouteChildren = {
+  LessonsSlugRoute: LessonsSlugRoute,
+}
+
+const LessonsRouteWithChildren =
+  LessonsRoute._addFileChildren(LessonsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  LessonsRoute: LessonsRouteWithChildren,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoMissionRoute: DemoMissionRoute,
   DemoMissionControlRoute: DemoMissionControlRoute,
@@ -235,13 +286,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

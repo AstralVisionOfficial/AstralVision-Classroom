@@ -1,53 +1,51 @@
-# Grade-Aware Student Experience
+# Build Plan — Phases 2, 3, 4
 
-Add a grade picker before the student enters a lesson, then scale Mission 001's vocabulary/explanations and practice questions to the chosen tier. Formulas and the manoeuvre sim stay the same across tiers.
+"All of the above" is a large body of work. To ship it well and keep each turn reviewable, I'll build in three sequenced phases. Each phase ends in a working, demo-able state before I start the next.
 
-## Tiers
+## Phase 2 — Lesson Library (`/lessons`)
 
-- **Foundation** — Years 5–6
-- **Standard** — Years 7–9 (default; current content)
-- **Advanced** — Years 10–12
+Space-framed lessons organised by Australian Curriculum v9 Year 8 strands (extensible to other years later).
 
-## Flow
+- New route `/lessons` — filterable grid (strand, duration, difficulty, tier).
+- New route `/lessons/$slug` — lesson detail with "Begin Mission" CTA.
+- Strand hubs: Biological, Chemical, Physical, Earth & Space.
+- Extend `mission-catalog.ts` into a full catalog (`src/lib/lessons/*`), each lesson keyed with: strand, year, curriculum codes, space framing hook, objectives, duration, tier, status.
+- Seed ~8 lesson stubs (Cells → "Life aboard the ISS", Chemical Reactions → "Rocket propellant chemistry", Forces → Mission 001 (live), Rock cycle → "Mars geology", etc). Only Mission 001 is fully playable; others show a polished "Coming online" state with the framing + objectives visible.
+- Nav: add "Lessons" to `TopNav` and a card on Mission Control home.
 
-```text
-Landing → "View Student Experience"
-        → /demo/classroom  (existing)
-        → NEW: Grade Picker screen (3 tier cards + year buttons)
-        → Mission 001 lesson (adapts to selected tier)
-```
+## Phase 3 — Teacher & Student Dashboards
 
-Selected tier persists in `localStorage` (`astral:grade-tier`) and is shown as a chip in the lesson header. A "Change grade" link returns to the picker.
+Backend + role-aware UI. Uses existing `profiles`, `user_roles`, `reflections` tables; adds `classes`, `class_members`, `mission_attempts`.
 
-## Content differences per tier
+- Migration: `classes` (teacher_id, name, year_level, join_code), `class_members` (class_id, student_id), `mission_attempts` (user_id, mission_slug, tier, score, completed_at, payload jsonb). All with RLS + GRANTs; teachers see their classes, students see own attempts.
+- Server fns (`*.functions.ts` + `requireSupabaseAuth`): `createClass`, `joinClass`, `listMyClasses`, `recordAttempt`, `listClassProgress`, `listStudentAttempts`.
+- Teacher dashboard `/teacher` — class list, roster, per-mission completion %, recent reflections, smartboard launcher.
+- Student dashboard `/student` — assigned/available missions, XP, recent attempts, reflection history.
+- Wire Mission 001 completion → `recordAttempt`.
+- Role-based redirect after login (student → `/student`, teacher → `/teacher`, else `/mission-control`).
 
-Only two axes change (per your answers). Formulas, sliders, and mission flow are unchanged.
+## Phase 4 — Gamification + ASTRA AI
 
-**Vocabulary & explanations**
-- Foundation: plain-English analogies. "Δv" written as "small push"; Kepler's law described as "higher orbits take longer laps"; debris framed as "space junk". Shorter paragraphs.
-- Standard: current wording — technical terms introduced with definitions (Δv, prograde, conjunction).
-- Advanced: assumes fluency — adds nuance (specific impulse mention, why radial burns distort orbit shape, real conjunction thresholds).
+- XP + ranks: derive from `mission_attempts` (Cadet → Pilot → Commander → Mission Specialist). Rank chip in TopNav; progress ring on Student dashboard.
+- Mission badges: awarded on completion (data-driven from lesson metadata); gallery on student profile.
+- ASTRA (Astral Teaching & Research Assistant) at `/astra`:
+  - Chat UI (dark, telemetry-styled) using Lovable AI Gateway (`google/gemini-2.5-flash` default).
+  - Server route `src/routes/api/astra.ts` streaming SSE; system prompt scopes ASTRA to teaching help, curriculum alignment, and mission context.
+  - Teacher tools: "Draft a lesson extension", "Explain this misconception", "Generate 3 exit-ticket questions".
+  - Student tools (safer prompt): hints not answers, Socratic style.
 
-**Practice questions** (the "Check your maths" block)
-- Foundation: 3 multiple-choice questions. Pick the closest along-track shift; pick which burn direction moves the ISS ahead; pick which timing gives the biggest shift.
-- Standard: current 3 numeric questions with ±0.05 km / ±0.5 min tolerance.
-- Advanced: 4 numeric questions with tighter tolerance (±0.02 km). Adds one two-step question (compute Δs, then judge whether it clears the 2 km safety threshold).
+## Order & checkpoints
 
-The Commit-recommendation gate on the manoeuvre panel is unchanged for all tiers.
+1. Phase 2 → I ship, you review the library UX.
+2. Phase 3 → schema + dashboards, you sign off on roles.
+3. Phase 4 → XP/ranks first, ASTRA last (largest new surface).
 
-## Files to change
+## Technical notes
 
-- `src/routes/demo.classroom.tsx` — replace "Launch Mission 001" CTA with "Choose your year level", then route to the lesson with the selected tier.
-- `src/routes/demo.lesson.mission-001-save-the-iss.tsx` — read tier from localStorage (fallback to Standard), branch copy in `BriefingStage`, `LearnOrbitStage`, `LearnDebrisStage`, `AnalyseStage`; swap `PracticeQuestions` for tier-specific variant. Add tier chip + "Change grade" link in the header bar.
-- `src/lib/mission-001.ts` — add `MissionTier` type, `TIER_COPY` (per-tier paragraphs and question sets), helper `getTier()` / `setTier()`.
-- No new routes, no schema changes, no backend work.
+- All new tables get `GRANT` + RLS in the same migration; role checks via `has_role`.
+- Server fns live in `src/lib/*.functions.ts`; admin client only for privileged writes.
+- Dashboards use `ensureQueryData` in loaders under `_authenticated/`.
+- ASTRA streams via a TSS server route (raw `Response`), not `createServerFn`.
+- No new deps for Phase 2–3; Phase 4 adds nothing (Lovable AI is HTTP).
 
-## Technical details
-
-- Tier state lives in a small `useTier()` hook backed by `localStorage`, read in `useEffect` to avoid SSR hydration mismatch (initial render assumes Standard).
-- Question definitions become data: `TIER_COPY[tier].questions: Array<{prompt, type: "mc" | "numeric", answer, options?, tolerance?}>`. The existing `Question` component gains an MC branch.
-- Grade picker is inline on `/demo/classroom` (not a new route) — three tier cards with year-band buttons underneath each.
-
-## Out of scope
-
-- Formula depth changes, alternative manoeuvre sims, per-year (not per-tier) content, saving tier to the user profile in Cloud, teacher-locked tiers. Flag any of these if you want them included and I'll extend the plan.
+Reply "go" to start Phase 2, or tell me to reorder / trim.

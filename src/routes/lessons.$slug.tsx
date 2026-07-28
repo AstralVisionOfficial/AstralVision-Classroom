@@ -102,7 +102,7 @@ function LessonDetail() {
         <div>
           <SectionTitle>Learning Objectives</SectionTitle>
           <ul className="mt-3 grid gap-2">
-            {lesson.objectives.map((o) => (
+            {lesson.objectives.map((o: string) => (
               <li
                 key={o}
                 className="rounded-md border border-border bg-surface/60 p-3 text-sm"

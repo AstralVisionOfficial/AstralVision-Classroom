@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LessonsRouteImport } from './routes/lessons'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -19,6 +20,11 @@ import { Route as DemoClassroomRouteImport } from './routes/demo.classroom'
 import { Route as AuthenticatedMissionControlRouteImport } from './routes/_authenticated/mission-control'
 import { Route as DemoLessonMission001SaveTheIssRouteImport } from './routes/demo.lesson.mission-001-save-the-iss'
 
+const LessonsRoute = LessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -69,6 +75,7 @@ const DemoLessonMission001SaveTheIssRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRoute
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRoute
   '/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/lessons': typeof LessonsRoute
   '/_authenticated/mission-control': typeof AuthenticatedMissionControlRoute
   '/demo/classroom': typeof DemoClassroomRoute
   '/demo/mission': typeof DemoMissionRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/lessons'
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/lessons'
     | '/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/lessons'
     | '/_authenticated/mission-control'
     | '/demo/classroom'
     | '/demo/mission'
@@ -136,6 +148,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  LessonsRoute: typeof LessonsRoute
   DemoClassroomRoute: typeof DemoClassroomRoute
   DemoMissionRoute: typeof DemoMissionRoute
   DemoMissionControlRoute: typeof DemoMissionControlRoute
@@ -145,6 +158,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/lessons': {
+      id: '/lessons'
+      path: '/lessons'
+      fullPath: '/lessons'
+      preLoaderRoute: typeof LessonsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -226,6 +246,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  LessonsRoute: LessonsRoute,
   DemoClassroomRoute: DemoClassroomRoute,
   DemoMissionRoute: DemoMissionRoute,
   DemoMissionControlRoute: DemoMissionControlRoute,

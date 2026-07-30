@@ -5,7 +5,7 @@ import { LESSONS, STRANDS, type Strand, type Tier } from "@/lib/lessons/catalog"
 import { Clock, ArrowRight, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/lessons")({
+export const Route = createFileRoute("/archive/lessons")({
   head: () => ({
     meta: [
       { title: "Lesson Library — Astral Vision" },

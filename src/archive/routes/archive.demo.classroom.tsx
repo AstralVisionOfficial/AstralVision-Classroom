@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Play, FileText, Users, Eye, TrendingUp, ArrowRight, Clock } from "lucide-react";
 
-export const Route = createFileRoute("/demo/classroom")({
+export const Route = createFileRoute("/archive/demo/classroom")({
   head: () => ({
     meta: [
       { title: "Teacher Demo — Astral Vision" },

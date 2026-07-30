@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Play, User, GraduationCap, CheckCircle2 } from "lucide-react";
 import { type MissionTier, TIER_META, getTier, setTier } from "@/lib/mission-001";
 
-export const Route = createFileRoute("/demo/mission")({
+export const Route = createFileRoute("/archive/demo/mission")({
   head: () => ({ meta: [{ title: "Student View — Astral Vision" }] }),
   component: StudentEntry,
 });

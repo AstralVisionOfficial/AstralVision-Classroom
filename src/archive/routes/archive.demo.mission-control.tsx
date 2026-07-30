@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MissionControlPage } from "@/components/mission-control/MissionControlPage";
 
-export const Route = createFileRoute("/demo/mission-control")({
+export const Route = createFileRoute("/archive/demo/mission-control")({
   head: () => ({
     meta: [
       { title: "Mission Control — Powered by Astral Vision" },

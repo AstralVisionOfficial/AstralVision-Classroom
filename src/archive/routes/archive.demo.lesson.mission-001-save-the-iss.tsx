@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/demo/lesson/mission-001-save-the-iss")({
+export const Route = createFileRoute("/archive/demo/lesson/mission-001-save-the-iss")({
   head: () => ({
     meta: [
       { title: "Mission 001: Planet Killer — Astral Vision" },

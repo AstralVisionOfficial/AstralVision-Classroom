@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { getLesson, LESSONS } from "@/lib/lessons/catalog";
 import { ArrowLeft, Clock, Play, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/lessons/$slug")({
+export const Route = createFileRoute("/archive/lessons/$slug")({
   loader: ({ params }) => {
     const lesson = getLesson(params.slug);
     if (!lesson) throw notFound();

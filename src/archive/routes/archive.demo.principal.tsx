@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, Users, BookOpen, Award, Quote, CheckCircle2 } from "lucide-react";
 
-export const Route = createFileRoute("/demo/principal")({
+export const Route = createFileRoute("/archive/demo/principal")({
   head: () => ({
     meta: [
       { title: "Principal Dashboard — Astral Vision" },

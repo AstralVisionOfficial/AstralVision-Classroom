@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Starfield } from "@/components/astral/Starfield";
-import { TopNav } from "@/components/astral/TopNav";
+import { PublicNav } from "@/components/shell/PublicNav";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {

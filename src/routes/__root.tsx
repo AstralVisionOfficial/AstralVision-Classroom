@@ -123,7 +123,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Starfield />
-      <TopNav />
+      <PublicNav />
       <Outlet />
       <Toaster />
     </QueryClientProvider>
